@@ -16,13 +16,60 @@ echo "==========================请选择功能:====================="
 echo
 echo "a)===========本机增加用户"
 echo
-echo "b)===========远程主机机增加用户"
+echo "b)===========远程主机增加用户"
+echo
+echo "c)===========本机创建密匙"
+echo
+echo "d)===========远程主机创建密匙"
+echo
+echo "e)===========免密互登"
 echo
 echo "q)===========退出"
 echo
 echo -n "请输入(a):"
 }
 
+function add_ssh_key()
+{
+	echo "如果已有秘钥则跳过..."
+	echo -e "\n" |ssh-keygen -t rsa -P ''
+	echo "创建秘钥结束..."
+	read
+}
+
+function add_ssh_key_remote()
+{
+	echo "如果已有秘钥则跳过..."
+	echo "请输入远程主机  用户名@IP:"
+	read remote_addr
+	remote_cmd='echo -e "\n" |ssh-keygen -t rsa -P ""'
+	ssh ${remote_addr} "${remote_cmd}"
+	echo "创建秘钥结束..."
+	read
+
+}
+
+function add_ssh_copy()
+{
+	echo "请输入互登主机1 用户名@IP ..."
+	read remote_addr1
+	echo "请输入互登主机2 用户名@IP ..."
+	read remote_addr2
+	# if [ Z"$remote_addr2" = "Z" ];then
+	# remote_addr2=localhost
+	# fi
+	remote_cmd1="ssh-copy-id $remote_addr2 ;exit"
+	echo -e "输入密码后请手动执行以下命令! \n $remote_cmd1"
+	ssh ${remote_addr1} 
+	remote_cmd2="ssh-copy-id $remote_addr1 ;exit"
+	echo -e "输入密码后请手动执行以下命令! \n $remote_cmd2"
+	ssh ${remote_addr2} 
+
+	#echo -e "\n" |ssh-keygen -t rsa -P ''
+	echo "免密互登配置结束..."
+	read
+
+}
 
 
 function add_user_passwd()
@@ -115,7 +162,7 @@ done
 }
 
 
-for i in `seq 10` ;do
+for i in `seq 100` ;do
 display_start
 read  v_step
 
@@ -132,6 +179,24 @@ case $v_step in
 	echo "增加远程用户开始..."
 	echo
 	add_user_passwd_remote
+	;;
+	c)
+	echo
+	echo "增加本机秘钥开始..."
+	echo
+	add_ssh_key
+	;;
+	d)
+	echo
+	echo "增加远程秘钥开始..."
+	echo
+	add_ssh_key_remote
+	;;
+	e)
+	echo
+	echo "免密互登配置开始..."
+	echo
+	add_ssh_copy
 	;;
 	q)
 	echo
