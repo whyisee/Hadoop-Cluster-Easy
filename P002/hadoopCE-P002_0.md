@@ -18,7 +18,7 @@ tags: linux,ssh
 >passwd 用户名  
 
 创建秘钥,默认保存位置
->echo -e "\n" |ssh-keygen -t rsa -P ''
+>ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
 
 复制秘钥-免密互登
 >ssh-copy-id  user_name@id
