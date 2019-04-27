@@ -24,9 +24,25 @@ echo "d)===========远程主机创建密匙"
 echo
 echo "e)===========免密互登"
 echo
+echo "s)===========sudo免密"
+echo
 echo "q)===========退出"
 echo
 echo -n "请输入(a):"
+}
+
+#sudo免密
+function add_sudo_nopasswd()
+{
+	echo "请输入添加用户  用户名@IP:"
+	read remote_addr
+	user_name=$(echo $remote_addr |awk -F "@" '{print $1}')
+	user_addr=$(echo $remote_addr |awk -F "@" '{print $2}')
+	remote_cmd="chmod u+w /etc/sudoers  ;echo '$user_name ALL=(ALL)  NOPASSWD:  ALL' >> /etc/sudoers  ; chmod u-w /etc/sudoers ;"
+	ssh root@${user_addr}  "${remote_cmd}"
+	echo "sudo免密添加完成..."
+
+	read
 }
 
 function add_ssh_key()
@@ -197,6 +213,12 @@ case $v_step in
 	echo "免密互登配置开始..."
 	echo
 	add_ssh_copy
+	;;
+	s)
+	echo
+	echo "sudo配置开始..."
+	echo
+	add_sudo_nopasswd
 	;;
 	q)
 	echo
