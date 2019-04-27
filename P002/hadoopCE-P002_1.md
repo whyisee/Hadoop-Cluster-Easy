@@ -25,3 +25,6 @@ chmod u-w /etc/sudoers
 
 已加入工具脚本
 
+
+
+

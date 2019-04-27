@@ -1,6 +1,6 @@
 ---
 
-title: "大数据集群搭建005-P005hive安装"
+title: "大数据集群搭建006-P006hive安装"
 scp: 2019/4/17 22:35:40
 tags: hadoop,hive
 
@@ -8,3 +8,7 @@ tags: hadoop,hive
 
 ## hive安装
 
+### 下载
+### 解压
+### 配置环境变量
+### 工具脚本安装

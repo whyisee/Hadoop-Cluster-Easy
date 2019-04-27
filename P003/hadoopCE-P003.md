@@ -47,6 +47,95 @@ scp hadoop-3.2.0.tar.gz hadoop@red02:~/
 
 ### 配置hadoop
 
+#### 目录配置
+
+>sudo mkdir -p /data01/hadoop/data /data01/hadoop/name /data01/hadoop/tmp
+chown hadoop:hadoop -R /data01/hadoop/
+#### 配置core-site.xml
+```bash
+vi $HADOOP_HOME/etc/hadoop/core-site.xml 
+
+<configuration>
+  <property>
+    <name>hadoop.tmp.dir</name>
+    <value>file:/data01/hadoop/tmp</value>
+    <description>A base for other temporary directories.</description>
+  </property>
+  <property>
+    <name>fs.default.name</name>
+    <value>hdfs://hadoop01:9000</value>
+  </property>
+</configuration>
+```
+#### 配置hdfs-site.xml 
+```bash
+vi $HADOOP_HOME/etc/hadoop/hdfs-site.xml 
+
+<configuration>
+  <property>
+    <name>dfs.replication</name>
+    <value>2</value>
+  </property>
+  <property>
+    <name>dfs.namenode.name.dir</name>
+    <value>file:/data01/hadoop/name</value>
+    <final>true</final>
+  </property>
+  <property>
+    <name>dfs.datanode.data.dir</name>
+    <value>file:/data01/hadoop/data</value>
+    <final>true</final>
+  </property>
+  <property>
+    <name>dfs.namenode.secondary.http-address</name>
+    <value>hadoop01:9001</value>
+  </property>
+  <property>
+    <name>dfs.webhdfs.enabled</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>dfs.permissions</name>
+    <value>false</value>
+  </property>
+</configuration>
+```
+#### 配置yarn-site.xml
+```bash
+vi $HADOOP_HOME/etc/hadoop/yarn-site.xml
+
+<configuration>
+
+  <!-- Site specific YARN configuration properties -->
+  <property>
+    <name>yarn.resourcemanager.hostname</name>
+    <value>hadoop01</value>
+  </property>
+</configuration>
+```
+#### 配置mapred-site.xml
+```bash
+vi $HADOOP_HOME/etc/hadoop/mapred-site.xml 
+
+<configuration>
+  <property>
+    <name>mapreduce.framework.name</name>
+    <value>yarn</value>
+  </property>
+</configuration>
+```
+#### 配置salve
+
+```bash
+vi $HADOOP_HOME/etc/hadoop/slaves 
+
+hadoop01
+hadoop02
+hadoop03
+```
+
+### 复制hadoop到其他主机
+
 
 ### 格式化HDFS文件系统
 >hdfs namenode -format
@@ -54,8 +143,30 @@ scp hadoop-3.2.0.tar.gz hadoop@red02:~/
 ### 启动和停止守护进程
 >start-dfs.sh
 
- 告警提示:You have loaded library /opt/hadoop-3.2.0/lib/native/lib  
- 处理:  
+### 启动yarn守护进程
+>start-yarn.sh  
+
+### 运行测试 
+>hadoop jar /opt/hadoop-2.8.5/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.8.5.jar pi 5 10  
+
+
+### 问题汇总
+
+告警提示:java.net.NoRouteToHostException: No route to host  
+网络问题,暂时关闭防火墙处理
+```bash
+service iptables stop #临时
+chkconfig iptables off  #永久
+```
+告警提示:JAVA_HOME is not set and could not be found  
+解决方法:添加环境变量  
+>vi $HADOOP_HOME/etc/hadoop/hadoop-env.sh  
+#将export JAVA_HOME=${JAVA_HOME}改为  
+export JAVA_HOME=/usr/java/jdk1.8.0_45
+
+
+告警提示:You have loaded library /opt/hadoop-3.2.0/lib/native/lib  
+处理:  
 export HADOOP_COMMON_LIB_NATIVE_DIR=${HADOOP_PREFIX}/lib/native   
 export HADOOP_OPTS="-Djava.library.path=$HADOOP_PREFIX/lib" 
 
