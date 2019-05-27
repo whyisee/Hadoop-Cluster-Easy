@@ -6,35 +6,35 @@ tags: hadoop
 
 ---
 
-## hadoop文件系统
+# hadoop文件系统
 
-### hdfs 的概念
+## hdfs 的概念
 
-#### 数据块  
+### 数据块  
 每个磁盘都有默认的数据块大学,这是磁盘进行数据读写的最小单位  
 hdfs也有快的概念,默认为128MB  
 hdfs中的fsck指令可以显示块信息  
 >hdfs fsck / -files -blocks  
-#### namenode和datanode  
+### namenode和datanode  
 namenode是管理节点.管理文件系统的命名空间.维护着文件系统树及整颗树内所有的文件和目录.这些信息以两个文件的形式永久保存在本地磁盘上:命名空间镜像文件和编辑日志文件.  
 datanode是文件系统的工作节点.他们根据需要存储并检索数据块,并定期向namenode发送他们所存储的块列表  
 
-#### 块缓存
+### 块缓存
 
-#### 联邦hdfs  
+### 联邦hdfs  
 
-#### hdfs的高可用性
+### hdfs的高可用性
 
-### 命令行接口
+## 命令行接口
 
 >hadoop fs -copyFromLocal 
 
-### hadoop文件系统  
+## hadoop文件系统  
 hadoop有一个抽象的文件系统概念,hdfs只是其中一个实现,
 
-### hadoop java接口
+## hadoop java接口
 
-#### 1.URL接口方式
+### 1.URL接口方式
 
 ```java
 import org.apache.zookeeper.common.IOUtils;
@@ -70,7 +70,28 @@ public class HadoopInterfaceTest {
 
 
 ```
-#### 遇到的问题:  
+### 通过FileSystem API 读取数据
+```java
+    //读取数据
+    public void getFileContextUseURLFSAPI(String host,String port,String path)  {
+        Configuration configuration = new Configuration();
+        configuration.addResource("conf/core-site.xml");
+        InputStream in = null;
+        try{
+            FileSystem fileSystem = FileSystem.get(configuration);
+            in = fileSystem.open(new Path(path));
+            IOUtils.copyBytes(in,System.out,4096,false);
+        } catch (IOException e) {
+            e.printStackTrace();
+            IOUtils.closeStream(in);
+        }
+
+    }
+```
+
+
+
+### 遇到的问题:  
 1.windows环境下开发,先安装hadoo客户端  
 2.下载winutils.exe放到$HADOOP_HOME/bin下  
 3.URL.setURLStreamHandlerFactory(new FsUrlStreamHandlerFactory());  

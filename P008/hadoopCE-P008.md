@@ -58,4 +58,17 @@ stop-hbase.sh
 ### 问题
 >Caused by: java.lang.ClassNotFoundException: org.apache.htrace.SamplerBuilder  
 
-需要将htrace-core-3.1.0-incubating.jar复制到$HBASE_HOME/lib
+需要将htrace-core-3.1.0-incubating.jar复制到$HBASE_HOME/lib  
+>ERROR: org.apache.hadoop.hbase.PleaseHoldException: Master is initializing  
+
+这个问题情况很多,首先查看日志  
+
+>java.lang.NoClassDefFoundError: Could not initialize class org.apache.hadoop.hbase.io.asyncfs.FanOutOneBlockAsyncDFSOutputHelper  
+
+这种情况的解决办法是在配置文件hbase-site.xm中加上
+```xml
+	<property>
+		<name>hbase.wal.provider</name>
+		<value>filesystem</value>
+	</property>
+```
