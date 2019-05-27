@@ -1,7 +1,7 @@
 ---
 
-title: "大数据集群搭建008-hbase,hive整合"
-scp: 2019/5/23 7:35:40
+title: "大数据集群搭建009-hbase,hive整合"
+scp: 2019/5/28 7:35:40
 tags: hbase,hive
 
 ---
