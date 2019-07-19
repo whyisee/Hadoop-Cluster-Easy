@@ -22,4 +22,5 @@ tags: hadoop
 
 学到了几个命令的冷门用法  
 cd -P
- sudo rsync -av scala-2.13.0 hadoop03:/opt/s
+
+sudo rsync -av scala-2.13.0 hadoop03:/opt/s
