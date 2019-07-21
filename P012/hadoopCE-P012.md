@@ -104,4 +104,4 @@ public class HiveTest {
 
 >Required field 'serverProtocolVersion' is unset!  
 
-网上有人说是core-site.xml里面修改组啥的,试了半天没啥用,终于看到有人说是hiveserver2和hive的版本不同的原因,于是还是换回高版本的驱动jar包,但是依赖冲突又不会解决,于是就一个版本一个版本的降级,最后找到2.8.5这个版本可以使用.也不报这个错了
+网上有人说是core-site.xml里面修改组啥的,试了半天没啥用,终于看到有人说是hiveserver2和hive的版本不同的原因,于是还是换回高版本的驱动jar包,但是依赖冲突又不会解决,于是就一个版本一个版本的降级,最后找到2.3.5这个版本可以使用.也不报这个错了
