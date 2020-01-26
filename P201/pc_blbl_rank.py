@@ -29,5 +29,5 @@ def writePage(html, filename):
         f.write(html)
     print ("-" * 30)
 
-html=loadPage("https://www.bilibili.com/ranking/all/0/0/1","bilibili排行")
+html=loadPage("https://www.zhihu.com/search?q=%E9%99%A4%E5%A4%95%E7%A5%9D%E7%A6%8F&utm_content=search_hot&type=content","bilibili排行")
 writePage(html,'bilibili排行.html')
