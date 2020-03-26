@@ -6,7 +6,7 @@ import unrar
  
 class MyIterator():
     # 单位字符集合
-    letters = 'abcdefghijklmnopqrstuvwxyz012345678'
+    letters = 'abcdefghijklmnopqrstuvwxyz012345678.'
     min_digits = 0
     max_digits = 0
  

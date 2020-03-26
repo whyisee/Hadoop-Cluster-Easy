@@ -20,5 +20,6 @@ tags: java,LinkedList
 
 记住这个实现不是 synchronized 同步的,如果有多个线程同时访问一个链表,有多于一个线程修改链表的结构,一定需要从外部同步.(结构改变的操作有新增删除节点,add/delete,只是改变节点数据值不会改变链表的结构) 这通常需要在一些对象上synchronized 同步,来自然的封装链表.  
 
-如果没有这样的对象,这个链表需要被 wrapped 使用 Collections.synchronizedList()方法,为防止不同步产生事故,这是在创建时最好的做法,.
+如果没有这样的对象,这个链表需要被 wrapped 使用 Collections.synchronizedList()方法,为防止不同步产生事故,这是在创建时最好的做法.
 > List list = Collections.synchronizedList(new LinkedList(...));
+

@@ -138,4 +138,8 @@ public synchronized void start() {}
 
 //
 
+//输出的是线程名+优先级+[组名]
+public String toString() {}
+
+
 ```
