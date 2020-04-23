@@ -46,3 +46,6 @@ DataFrame的前身是SchemaRDD，从Spark 1.3.0开始SchemaRDD更名为DataFrame
 2.2． DataFrame与RDD的区别
 
 RDD可看作是分布式的对象的集合，Spark并不知道对象的详细模式信息，DataFrame可看作是分布式的Row对象的集合，其提供了由列组成的详细模式信息，使得Spark SQL可以进行某些形式的执行优化。DataFrame和普通的RDD的逻辑框架区别如下所示：
+
+
+
