@@ -31,13 +31,11 @@ tags: hadoop,zookeeper
 dataDir=/data01/zookeeper  
 clientPort=2181
 
-
 启动
 >zkServer.sh start
 
 命令使用
 >echo ruok |nc localhost 2181  
 telnet
-
 
 ![zookeeper命令](http://ww1.sinaimg.cn/large/0066tqialy1g25aywbtcwj30kf0jlqar.jpg)
