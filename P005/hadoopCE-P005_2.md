@@ -104,3 +104,26 @@ ZAB主要有三个阶段:
 
 ## zookeeper使用  
 
+使用起来还是比较简单的配置文件可以只改一个zoo.cfg
+
+```
+#重要配置
+tickTime=2000
+initLimit=10
+syncLimit=5
+clientPort=2181
+dataDir=/data01/zookeeper
+server.1=hadoop01:2888:3888
+server.2=hadoop02:2888:3888
+server.3=hadoop03:2888:3888
+```
+
+启动时候需要在机器的dataDir下创建一个myid文件,文件内容就是对应的sercer的id  
+
+## 常见问题
+
+
+* stat 测试指令不存在
+
+在zkServer.sh中加上
+>ZOOMAIN="-Dzookeeper.4lw.commands.whitelist=* ${ZOOMAIN}"
