@@ -163,3 +163,5 @@ server.3=hadoop03:2888:3888
 
 ## java客户端API  
 
+## 开源客户端ZkClient  
+
