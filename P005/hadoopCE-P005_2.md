@@ -120,10 +120,46 @@ server.3=hadoop03:2888:3888
 
 启动时候需要在机器的dataDir下创建一个myid文件,文件内容就是对应的sercer的id  
 
-## 常见问题
-
+### 常见问题
 
 * stat 测试指令不存在
 
 在zkServer.sh中加上
 >ZOOMAIN="-Dzookeeper.4lw.commands.whitelist=* ${ZOOMAIN}"
+
+* 磁盘空间不足  
+* 无法找到myid文件  
+* 集群其他机器leader选举端口未打开  
+
+## 客户端脚本  
+
+**连接**  
+
+默认连接localhost:2181
+>sh zkCli.sh  
+
+>sh zkCli.sh -server ip:port  
+
+**创建节点**
+
+>create [-s] [-e] path data acl  
+
+-s指定顺序节点  
+-e指定临时节点  
+
+**读取**
+
+列出所有子节点
+>ls  
+
+获取指定节点数据内容  
+>get  
+
+**更新**
+>set path data [version]  
+
+**删除**
+>delete path [version]  
+
+## java客户端API  
+
