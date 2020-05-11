@@ -108,4 +108,29 @@ RDD1.cartesian(RDD2)
 
 reduce() 接收一个函数作为参数,这个函数要操作两个RDD的元素类型的数据并返回一个同样类型的元素.  
 
-fold() 和reduce()类似
+fold() 和reduce()类似,  
+
+aggregate()  
+
+collect()  
+
+take()  
+
+top()  
+
+takeSample()  
+
+foreach()  
+
+#### 持久化  
+
+### 键值对操作  
+
+都在敲代码了,难点太多
+
+### 连接  
+
+### 排序
+
+## PairRDD的行动操作  
+
