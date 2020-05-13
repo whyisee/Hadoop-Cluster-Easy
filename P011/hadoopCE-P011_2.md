@@ -134,3 +134,49 @@ foreach()
 
 ## PairRDD的行动操作  
 
+## 数据分区  
+
+大表频繁join小表时,可以对大表进行分区partitionBy() 再调用persist()持久化  
+
+不懂scala太难了
+
+***
+
+## 数据读取与保存
+
+这章偏应用可以结合实践操作练习下  
+
+### 文件格式  
+
+#### 文本文件
+
+**读取**
+python
+>input = sc.textFile("file:...") 
+
+scala
+>val input = sc.textFile("file:...") 
+
+java
+>JavaRDD<String> input = sc.textFile("file:...") ;
+
+如果有多个小文件可以使用wholeTextFiles()方法,该方法会返回一个pairRDD,其中键为输入文件的文件名
+>sc.wholeTextFiles()
+
+**保存**
+
+>result.saveAsTextFile()  
+
+#### JSON
+
+以文本文件读取,然后对JSON数据进行解析  
+
+保存同样
+
+#### 逗号分隔值与制表符分隔值  
+
+CSV/TSV
+一般第一行为属性名
+
+#### SequenceFile
+
