@@ -100,4 +100,16 @@ boolean awaitTermination(long timeout,TimeUnit);
 
 ```
 
+## AbstractExecutorService implements ExecutorService
+
+newTaskFor(Runnable runnable, T value):RunnableFuture<T>  
+submit(Runnable task):Future<?>  
+doInvokeAny(...)  
+invokeAny(...)  
+invokeAll(...)  
+
+## ThreadPoolExecutor  extends AbstractExecutorService  
+
+这涉及到的东西也太多了吧, 多线程要用到线程队列,需要看集合数据结构,  
+数据同步涉及到锁.到处都能看的的泛型,枚举,位运算.
 
