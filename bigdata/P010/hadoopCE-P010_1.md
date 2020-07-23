@@ -43,4 +43,34 @@ public static final String UI2_WEBAPP_NAME = "/ui2";
   - ExitUtil.terminate(-1); --System.exit(status);  
   - ExitUtil.halt(-1); -- Runtime.getRuntime().halt(status);
   
- - StringUtils.startupShutdownMessage(ResourceManager.class, argv, LOG);
+ - StringUtils.startupShutdownMessage(ResourceManager.class, argv, LOG);  
+ 增加程序启动日志,和添加钩子终止时记录日志  
+    - LOG.info(createStartupShutdownMessage(classname, hostname, args));  
+    - SystemUtils.IS_OS_UNIX 判断是否为类unix系统
+    - SignalLogger.INSTANCE.register(LOG); 注册接受linux系统的中断信号  
+     registered UNIX signal handlers for [TERM, HUP, INT]  
+    - ShutdownHookManager.get().addShutdownHook() 增加终止hook,终止时打印终止日志  
+
+ - Configuration conf = new YarnConfiguration();  
+   - 初始化静态常量  
+   ... 太多
+   - 执行静态代码  
+      - addDeprecatedKeys();  
+      添加不推荐使用的配置,添加时先保存为旧的配置,然后更新到新的上
+      - Configuration.addDefaultResource(YARN_DEFAULT_CONFIGURATION_FILE);  
+      yarn-default.xml
+      - Configuration.addDefaultResource(YARN_SITE_CONFIGURATION_FILE);  
+      yarn-site.xml
+      - Configuration.addDefaultResource(RESOURCE_TYPES_CONFIGURATION_FILE);  
+      resource-types.xml
+      - 父类的静态代码  
+      addDefaultResource("core-default.xml");  
+      addDefaultResource("core-site.xml");  
+      addDefaultResource("hadoop-site.xml");  
+
+   - 执行构造函数  
+   执行父类Configuration的构造函数  
+   
+- GenericOptionsParser hParser = new GenericOptionsParser(conf, argv);
+
+
