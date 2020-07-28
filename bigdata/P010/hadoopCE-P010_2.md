@@ -57,7 +57,12 @@ ConcurrentHashMap 这个类源码有6k多行,都不是人看的,记住这个声�
     private ArrayList<Resource> resources = new ArrayList<Resource>();
     static final String UNKNOWN_RESOURCE = "Unknown";
 
-
+    //不清楚
+    private Set<String> finalParameters = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+    private boolean loadDefaults ;
+    //WeakHashMap 这个类网上原理分析的挺多的,应用的都是些大项目的代码
+    //
+    private static final WeakHashMap<ZConfiguration,Object> REGISTRY = new WeakHashMap<>();
 ### Resource
 单个配置文件类  
 private static class Resource{}
