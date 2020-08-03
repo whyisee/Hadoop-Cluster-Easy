@@ -9,7 +9,7 @@
 # 创建人员: zoukh
 # 创建日期: 2020-08-03 15:13:14
 # 修改人员: zoukh
-# 修改日期: 2020-08-03 18:21:59
+# 修改日期: 2020-08-03 22:11:50
 #/************************************************************************************
 #
 # ( ･_･)ﾉ⌒●~* 注释写的少,bug改不好 *~●⌒㇏(･_･ ) 
@@ -147,36 +147,21 @@ function generate_piece {
     let board[$pos] || {
     #let value=RANDOM%10?2:4
     let value=1
-    board[$pos]=$value
-      
-    #开始随机形状
-    let randomt=RANDOM%4
-    echo =====$randomt++++$pos
-    if [[ $randomt = 0 ]];then
-        let randomtx=randomx+1
-        if [[ $randomtx -gt $pos2 ]];then
-            let randomtx=randomx-1
-        fi
-      
-    elif [[ $randomt = 1 ]];then
-        let randomtx=randomx-1
-        if [[ $randomtx -lt $pos1 ]];then
-            let randomtx=randomx+1
-        fi
-    elif [[ $randomt = 2 ]];then
-        let randomty=randomy-1
-        if [[ $randomty -lt 0 ]];then
-            let randomty=randomy+1
-        fi
-    elif [[ $randomt = 3 ]];then
-        let randomty=randomy+1
-        if [[ $randomty -gt 3 ]];then
-            let randomty=randomy-1
-        fi
-    fi
-    let pos=randomtx+randomty*10
 
+    board_his1[0]="$randomx,$randomy"
+    #echo "+++++${board_his1[0]}999+++$randomx,$randomy"
     board[$pos]=$value
+    generate_piece2
+    board[$pos]=$value
+    board_his1[1]="$randomx,$randomy"
+
+    generate_piece2
+    board[$pos]=$value
+    board_his1[2]="$randomx,$randomy"
+
+    generate_piece2
+    board[$pos]=$value
+    board_his1[3]="$randomx,$randomy"
 
     last_added=$pos
     printf "Generated new piece with value $value at position [$pos]\n" >&3
@@ -185,7 +170,116 @@ function generate_piece {
   done
   let pieces++
 }
+function generate_piece2 {
+    #开始随机形状,遇到越界往返方向,遇到重复,转换坐标
+    randomx_bak=randomx
+    randomy_bak=randomy
+    let randomt=RANDOM%4
+    echo =====$randomt++++$pos===$check_exists_rs
+    if [[ $randomt = 0 ]];then
+        let randomx=randomx_bak+1
+        let randomy=randomy
 
+        if [[ $randomx -gt $pos2 ]];then
+            let randomx=randomx_bak-1
+        fi
+        check_exists_his
+        if [[ $check_exists_rs = 1 ]];then
+            let randomx=randomx_bak
+            let randomy=randomy_bak-1
+            check_exists_his
+            if [[ $randomy -lt 0 ]] || [[ $check_exists_rs = 1 ]];then
+            let randomy=randomy_bak+1
+            fi
+        fi
+      
+    elif [[ $randomt = 1 ]];then
+        let randomx=randomx_bak-1
+        let randomy=randomy
+        if [[ $randomx -lt $pos1 ]];then
+            let randomx=randomx_bak+1
+        fi
+        check_exists_his
+        if [[ $check_exists_rs = 1 ]];then
+            let randomx=randomx_bak
+            let randomy=randomy_bak-1
+            check_exists_his
+            if [[ $randomy -lt 0 ]] || [[ $check_exists_rs = 1 ]];then
+            let randomy=randomy_bak+1
+            fi
+        fi
+
+        
+    elif [[ $randomt = 2 ]];then
+        let randomx=randomx
+        let randomy=randomy_bak-1
+        if [[ $randomy -lt 0 ]];then
+            let randomy=randomy_bak+1
+        fi
+        check_exists_his
+        if [[ $check_exists_rs = 1 ]];then
+            let randomx=randomx_bak+1
+            let randomy=randomy_bak
+            check_exists_his
+            if [[ $randomx -gt $pos2 ]] || [[ $check_exists_rs = 1 ]];then
+            let randomx=randomx_bak-1
+            fi
+        fi
+        
+    elif [[ $randomt = 3 ]];then
+        let randomx=randomx
+        let randomy=randomy_bak+1
+        if [[ $randomy -gt 3 ]];then
+            let randomy=randomy_bak-1
+        fi
+        check_exists_his
+        if [[ $check_exists_rs = 1 ]];then
+            let randomx=randomx_bak+1
+            let randomy=randomy_bak
+            check_exists_his
+            if [[ $randomx -gt $pos2 ]] || [[ $check_exists_rs = 1 ]];then
+            let randomx=randomx_bak-1
+            fi
+        fi
+        
+    fi
+    let pos=randomx+randomy*10
+}
+
+function check_exists_his {
+  for i in $(seq 4);do
+  #echo "zzz${board_his1[i-1]}---$randomx,${randomy}zzzz"
+    if [[ "${board_his1[i-1]}" = "$randomx,$randomy" ]];then
+       check_exists_rs=1
+       return 1;
+    fi
+  done
+  check_exists_rs=0
+  return 0;
+
+}
+
+function update_his {
+  for i in $(seq 4);do
+    his_pos_x=$(echo ${board_his1[i-1]} |awk -F "," '{print $1}')
+  
+    his_pos_y=$(echo ${board_his1[i-1]} |awk -F "," '{print $2}')
+
+    echo 000===$his_pos_x,$his_pos_y
+    let his_pos=his_pos_x+10*his_pos_y
+    board[$his_pos]=0
+  done
+  
+  for i in $(seq 4);do
+    his_pos_x=$(echo ${board_his1[i-1]} |awk -F "," '{print $1}')
+    his_pos_y=$(echo ${board_his1[i-1]} |awk -F "," '{print $2}')
+    #his_pos_x=$his_pos_x
+    let his_pos_y=his_pos_y+1
+    board_his1[i-1]="$his_pos_x,$his_pos_y"
+    let his_pos_new=his_pos_x+10*his_pos_y
+    board[$his_pos_new]=1
+  done
+}
 # perform push operation between two pieces
 # inputs:
 #         $1 - push position, for horizontal push this is row, for vertical column
@@ -449,6 +543,7 @@ echo $last_added
 while true; do
 print_board
 sleep 1
+update_his
 done
 
 }
