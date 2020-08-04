@@ -9,7 +9,7 @@
 # 创建人员: zoukh
 # 创建日期: 2020-08-03 15:13:14
 # 修改人员: zoukh
-# 修改日期: 2020-08-03 22:11:50
+# 修改日期: 2020-08-04 18:25:58
 #/************************************************************************************
 #
 # ( ･_･)ﾉ⌒●~* 注释写的少,bug改不好 *~●⌒㇏(･_･ ) 
@@ -17,6 +17,10 @@
 
 
 #!/usr/bin/env bash
+
+rm -f /tmp/zpipe
+mkfifo /tmp/zpipe
+declare RTIMEOUT=1
 
 #important variables
 declare -ia board    # array that keeps track of game status
@@ -78,43 +82,47 @@ function _seq {
 # print currect status of the game, last added pieces are marked red
 function print_board {
   clear
-  printf "$header pieces=$pieces target=$target score=$score\n"
+  printf "$header pieces=$pieces target=$target score=$score\n"  > /tmp/bash_game_001
   printf "Board status:\n" >&3
-  printf "\n"
-  printf '/------'
+  printf "\n" >> /tmp/bash_game_001
+  printf '/------' >> /tmp/bash_game_001
   for l in $(_seq 1 $index_max); do
-    printf '+------'
+    printf '+------' >> /tmp/bash_game_001
   done
-  printf '\\\n'
+  printf '\\\n' >> /tmp/bash_game_001
   for l in $(_seq 0 $index_max); do
-    printf '|'
+    printf '|' >> /tmp/bash_game_001
     for m in $(_seq 0 $index_max); do
       if let ${board[l*$board_size+m]}; then
         if let '(last_added==(l*board_size+m))|(first_round==(l*board_size+m))'; then
-          printf '\033[1m\033[31m %4d \033[0m|' ${board[l*$board_size+m]}
+          #printf '\033[1m\033[31m %4d \033[0m|' ${board[l*$board_size+m]} >> /tmp/bash_game_001
+          printf '\033[40m %4d \033[0m|' ${board[l*$board_size+m]} >> /tmp/bash_game_001
+
         else
-          printf "\033[1m\033[${colors[${board[l*$board_size+m]}]}m %4d\033[0m |" ${board[l*$board_size+m]}
+         # printf "\033[1m\033[${colors[${board[l*$board_size+m]}]}m %4d\033[0m |" ${board[l*$board_size+m]} >> /tmp/bash_game_001
+          printf "\033[40m %4d \033[0m|" ${board[l*$board_size+m]} >> /tmp/bash_game_001
         fi
-        printf " %4d |" ${board[l*$board_size+m]} >&3
       else
-        printf '      |'
-        printf '      |' >&3
+        printf '      |' >> /tmp/bash_game_001
       fi
     done
     let l==$index_max || {
-      printf '\n|------'
+      printf '\n|------' >> /tmp/bash_game_001
       for l in $(_seq 1 $index_max); do
-        printf '+------'
+        printf '+------' >> /tmp/bash_game_001
       done
-      printf '|\n'
+      printf '|\n' >> /tmp/bash_game_001
       printf '\n' >&3
     }
   done
-  printf '\n\\------'
+  printf '\n\\------' >> /tmp/bash_game_001
   for l in $(_seq 1 $index_max); do
-    printf '+------'
+    printf '+------' >> /tmp/bash_game_001
   done
-  printf '/\n'
+  printf '/\n' >> /tmp/bash_game_001
+
+  cat /tmp/bash_game_001 > /tmp/zpipe &
+  cat /tmp/zpipe
 }
 
 # Generate new piece on the board
@@ -133,7 +141,7 @@ function generate_piece {
     #let pos=63
 
     let pos1=(board_size-4)/2
-    let pos2=(board_size-4)/2+4
+    let pos2=(board_size-4)/2+4-1
     #let pos3=(board_size-4)/2+4*board_size
     #let pos4=(board_size-4)/2+4+4*board_size
 
@@ -172,17 +180,17 @@ function generate_piece {
 }
 function generate_piece2 {
     #开始随机形状,遇到越界往返方向,遇到重复,转换坐标
-    randomx_bak=randomx
-    randomy_bak=randomy
+    randomx_bak=$randomx
+    randomy_bak=$randomy
     let randomt=RANDOM%4
-    echo =====$randomt++++$pos===$check_exists_rs
+    ##echo =====$randomt++++$pos===$check_exists_rs
     if [[ $randomt = 0 ]];then
         let randomx=randomx_bak+1
         let randomy=randomy
-
         if [[ $randomx -gt $pos2 ]];then
             let randomx=randomx_bak-1
         fi
+
         check_exists_his
         if [[ $check_exists_rs = 1 ]];then
             let randomx=randomx_bak
@@ -192,7 +200,7 @@ function generate_piece2 {
             let randomy=randomy_bak+1
             fi
         fi
-      
+  
     elif [[ $randomt = 1 ]];then
         let randomx=randomx_bak-1
         let randomy=randomy
@@ -208,10 +216,9 @@ function generate_piece2 {
             let randomy=randomy_bak+1
             fi
         fi
-
         
     elif [[ $randomt = 2 ]];then
-        let randomx=randomx
+        let randomx=randomx_bak
         let randomy=randomy_bak-1
         if [[ $randomy -lt 0 ]];then
             let randomy=randomy_bak+1
@@ -220,20 +227,22 @@ function generate_piece2 {
         if [[ $check_exists_rs = 1 ]];then
             let randomx=randomx_bak+1
             let randomy=randomy_bak
+
             check_exists_his
             if [[ $randomx -gt $pos2 ]] || [[ $check_exists_rs = 1 ]];then
             let randomx=randomx_bak-1
             fi
         fi
-        
+
     elif [[ $randomt = 3 ]];then
-        let randomx=randomx
+        let randomx=randomx_bak
         let randomy=randomy_bak+1
         if [[ $randomy -gt 3 ]];then
             let randomy=randomy_bak-1
         fi
         check_exists_his
-        if [[ $check_exists_rs = 1 ]];then
+
+        if [[ "$check_exists_rs" = "1" ]];then
             let randomx=randomx_bak+1
             let randomy=randomy_bak
             check_exists_his
@@ -241,14 +250,15 @@ function generate_piece2 {
             let randomx=randomx_bak-1
             fi
         fi
-        
+
     fi
     let pos=randomx+randomy*10
 }
 
 function check_exists_his {
+  echo $randomx,$randomy,$randomx_bak,$randomy_bak+$randomt+$pos+$check_exists_rs
+
   for i in $(seq 4);do
-  #echo "zzz${board_his1[i-1]}---$randomx,${randomy}zzzz"
     if [[ "${board_his1[i-1]}" = "$randomx,$randomy" ]];then
        check_exists_rs=1
        return 1;
@@ -260,24 +270,119 @@ function check_exists_his {
 }
 
 function update_his {
+  option_type=$1
+  #清空
   for i in $(seq 4);do
     his_pos_x=$(echo ${board_his1[i-1]} |awk -F "," '{print $1}')
-  
     his_pos_y=$(echo ${board_his1[i-1]} |awk -F "," '{print $2}')
-
-    echo 000===$his_pos_x,$his_pos_y
     let his_pos=his_pos_x+10*his_pos_y
     board[$his_pos]=0
+    [[ $his_pos_x -gt 0  ]] && [[ ${check_left:=0} -lt 1 ]] && check_left=0
+    check_left=$?
+    #echo 12312---$check_left==$his_pos_x
+    
+    [[ $his_pos_x+1 -lt $board_size  ]] && [[ ${check_right:=0} -lt 1 ]]
+    check_right=$?
+
+    [[ $his_pos_y+1 -lt $board_size  ]] && [[ ${check_down:=0} -lt 1 ]]
+    check_down=$?
   done
   
+  #echo $check_left===$check_right===$check_down
+  #新位置
+  case $option_type in
+  up)
   for i in $(seq 4);do
     his_pos_x=$(echo ${board_his1[i-1]} |awk -F "," '{print $1}')
     his_pos_y=$(echo ${board_his1[i-1]} |awk -F "," '{print $2}')
-    #his_pos_x=$his_pos_x
+    let his_pos=his_pos_x+10*his_pos_y
+    board[$his_pos]=1
+  done
+  ;;
+  down)
+  if [[ $check_down = 1 ]];then
+    his_pos_x=$(echo ${board_his1[i-1]} |awk -F "," '{print $1}')
+    his_pos_y=$(echo ${board_his1[i-1]} |awk -F "," '{print $2}')
+    let his_pos=his_pos_x+10*his_pos_y
+    board[$his_pos]=1
+    return 
+  fi
+  for i in $(seq 4);do
+    his_pos_x=$(echo ${board_his1[i-1]} |awk -F "," '{print $1}')
+    his_pos_y=$(echo ${board_his1[i-1]} |awk -F "," '{print $2}')
     let his_pos_y=his_pos_y+1
     board_his1[i-1]="$his_pos_x,$his_pos_y"
     let his_pos_new=his_pos_x+10*his_pos_y
     board[$his_pos_new]=1
+  done
+  ;;
+  left)
+  if [[ $check_left = 1 ]];then
+      his_pos_x=$(echo ${board_his1[i-1]} |awk -F "," '{print $1}')
+    his_pos_y=$(echo ${board_his1[i-1]} |awk -F "," '{print $2}')
+    let his_pos=his_pos_x+10*his_pos_y
+    board[$his_pos]=1
+    return 
+  fi
+  for i in $(seq 4);do
+    his_pos_x=$(echo ${board_his1[i-1]} |awk -F "," '{print $1}')
+    his_pos_y=$(echo ${board_his1[i-1]} |awk -F "," '{print $2}')
+    #let his_pos_y=his_pos_y+1
+    let his_pos_x=his_pos_x-1
+
+    board_his1[i-1]="$his_pos_x,$his_pos_y"
+    let his_pos_new=his_pos_x+10*his_pos_y
+    board[$his_pos_new]=1
+  done
+  ;;
+  right)
+  if [[ $check_right = 1 ]];then
+    his_pos_x=$(echo ${board_his1[i-1]} |awk -F "," '{print $1}')
+    his_pos_y=$(echo ${board_his1[i-1]} |awk -F "," '{print $2}')
+    let his_pos=his_pos_x+10*his_pos_y
+    board[$his_pos]=1
+    return 
+  fi
+  for i in $(seq 4);do
+    his_pos_x=$(echo ${board_his1[i-1]} |awk -F "," '{print $1}')
+    his_pos_y=$(echo ${board_his1[i-1]} |awk -F "," '{print $2}')
+    #let his_pos_y=his_pos_y+1
+    let his_pos_x=his_pos_x+1
+
+    board_his1[i-1]="$his_pos_x,$his_pos_y"
+    let his_pos_new=his_pos_x+10*his_pos_y
+    board[$his_pos_new]=1
+    done
+   ;;
+  esac
+  
+}
+
+function check_border {
+  :
+}
+
+function update_his_auto {
+  while true ;do
+  option_type=$1
+  #清空
+  for i in $(seq 4);do
+    his_pos_x=$(echo ${board_his1[i-1]} |awk -F "," '{print $1}')
+    his_pos_y=$(echo ${board_his1[i-1]} |awk -F "," '{print $2}')
+    let his_pos=his_pos_x+10*his_pos_y
+    board[$his_pos]=0
+  done
+
+  for i in $(seq 4);do
+    his_pos_x=$(echo ${board_his1[i-1]} |awk -F "," '{print $1}')
+    his_pos_y=$(echo ${board_his1[i-1]} |awk -F "," '{print $2}')
+    let his_pos_y=his_pos_y+1
+    board_his1[i-1]="$his_pos_x,$his_pos_y"
+    let his_pos_new=his_pos_x+10*his_pos_y
+    board[$his_pos_new]=1
+  done
+  print_board
+  sleep 2
   done
 }
 # perform push operation between two pieces
@@ -366,7 +471,8 @@ function check_moves {
 
 function key_react {
   let change=0
-  read -d '' -sn 1
+  read -d '' -sn 1 -t1
+  #echo $REPLY
   test "$REPLY" = "$ESC" && {
     read -d '' -sn 1 -t1
     test "$REPLY" = "[" && {
@@ -389,6 +495,42 @@ function key_react {
       s) apply_push down;;
       d) apply_push right;;
       a) apply_push left;;
+    esac
+  }
+}
+
+function key_react2 {
+  let change=0
+  read -d '' -sn 1 -t2
+  echo 111$REPLY==222
+  if [[ "Z$REPLY" = "Z" ]];then
+   
+  echo 222$REPLY==222
+
+   return
+  fi
+  test "$REPLY" = "$ESC" && {
+    read -d '' -sn 1 
+    test "$REPLY" = "[" && {
+      read -d '' -sn 1 -t1
+      case $REPLY in
+        A) update_his up;;
+        B) update_his down;;
+        C) update_his right;;
+        D) update_his left;;
+      esac
+    }
+  } || {
+    case $REPLY in
+      k) update_his up;;
+      j) update_his down;;
+      l) update_his right;;
+      h) update_his left;;
+
+      w) update_his up;;
+      s) update_his down;;
+      d) update_his right;;
+      a) update_his left;;
     esac
   }
 }
@@ -429,6 +571,7 @@ function end_game {
   let total_time=end_time-start_time
   
   print_board
+  kill -9 $update_pid
   printf "Your score: $score\n"
   
   printf "This game lasted "
@@ -531,20 +674,33 @@ function mytest {
 let fields_total=board_size*board_size
 let index_max=board_size-1
 
-echo $board_size---$fields_total---$index_max
+#echo $board_size---$fields_total---$index_max
 
 for i in $(_seq 0 $fields_total); do board[$i]="0"; done
 let pieces=0
 generate_piece
 first_round=$last_added
-echo $last_added
+#echo $last_added
 #generate_piece
+print_board
+#update_his_auto &
+#update_pid=$!
 
 while true; do
 print_board
-sleep 1
-update_his
+key_react2
+#sleep 1
 done
+
+#/f/git/myGit/Hadoop-Cluster-Easy/shell/SH001
+
+# 1.造随机块
+# 2.移动(变形)
+# 3.边界
+# 4.得分
+# 5.结束
+
+# 6.多线程 / 管道
 
 }
 
