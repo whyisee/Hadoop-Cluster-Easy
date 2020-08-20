@@ -9,7 +9,7 @@
 # 创建人员: zoukh
 # 创建日期: 2020-08-03 15:13:14
 # 修改人员: zoukh
-# 修改日期: 2020-08-04 18:25:58
+# 修改日期: 2020-08-05 11:19:43
 #/************************************************************************************
 #
 # ( ･_･)ﾉ⌒●~* 注释写的少,bug改不好 *~●⌒㇏(･_･ ) 
@@ -272,12 +272,16 @@ function check_exists_his {
 function update_his {
   option_type=$1
   #清空
+  check_right=0
+  check_left=0
+  check_down=0
   for i in $(seq 4);do
     his_pos_x=$(echo ${board_his1[i-1]} |awk -F "," '{print $1}')
     his_pos_y=$(echo ${board_his1[i-1]} |awk -F "," '{print $2}')
     let his_pos=his_pos_x+10*his_pos_y
     board[$his_pos]=0
-    [[ $his_pos_x -gt 0  ]] && [[ ${check_left:=0} -lt 1 ]] && check_left=0
+    echo 12312---$check_left==$his_pos_x
+    [[ $his_pos_x -gt 0  ]] && [[ ${check_left:=0} -lt 1 ]]
     check_left=$?
     #echo 12312---$check_left==$his_pos_x
     
@@ -287,6 +291,19 @@ function update_his {
     [[ $his_pos_y+1 -lt $board_size  ]] && [[ ${check_down:=0} -lt 1 ]]
     check_down=$?
   done
+
+  if [[ $check_down = 1 ]];then
+    for i in $(seq 4);do
+    his_pos_x=$(echo ${board_his1[i-1]} |awk -F "," '{print $1}')
+    his_pos_y=$(echo ${board_his1[i-1]} |awk -F "," '{print $2}')
+    let his_pos=his_pos_x+10*his_pos_y
+    board[$his_pos]=1
+  done
+  
+  generate_piece
+
+  return
+  fi
   
   #echo $check_left===$check_right===$check_down
   #新位置
@@ -301,10 +318,13 @@ function update_his {
   ;;
   down)
   if [[ $check_down = 1 ]];then
+  for i in $(seq 4);do
     his_pos_x=$(echo ${board_his1[i-1]} |awk -F "," '{print $1}')
     his_pos_y=$(echo ${board_his1[i-1]} |awk -F "," '{print $2}')
     let his_pos=his_pos_x+10*his_pos_y
     board[$his_pos]=1
+  done
+  check_down=0
     return 
   fi
   for i in $(seq 4);do
@@ -318,10 +338,14 @@ function update_his {
   ;;
   left)
   if [[ $check_left = 1 ]];then
-      his_pos_x=$(echo ${board_his1[i-1]} |awk -F "," '{print $1}')
+  for i in $(seq 4);do
+    his_pos_x=$(echo ${board_his1[i-1]} |awk -F "," '{print $1}')
     his_pos_y=$(echo ${board_his1[i-1]} |awk -F "," '{print $2}')
     let his_pos=his_pos_x+10*his_pos_y
     board[$his_pos]=1
+  done
+  check_right=0
+  check_left=0
     return 
   fi
   for i in $(seq 4);do
@@ -337,10 +361,15 @@ function update_his {
   ;;
   right)
   if [[ $check_right = 1 ]];then
+  for i in $(seq 4);do
     his_pos_x=$(echo ${board_his1[i-1]} |awk -F "," '{print $1}')
     his_pos_y=$(echo ${board_his1[i-1]} |awk -F "," '{print $2}')
     let his_pos=his_pos_x+10*his_pos_y
     board[$his_pos]=1
+  done
+  check_right=0
+  check_left=0
+
     return 
   fi
   for i in $(seq 4);do
@@ -355,7 +384,7 @@ function update_his {
     done
    ;;
   esac
-  
+
 }
 
 function check_border {
@@ -535,6 +564,11 @@ function key_react2 {
   }
 }
 
+#得分判断,检查整个面板,每行的总和等于边长即消去,得分,
+function check_score {
+  :
+}
+
 function save_game {
   rm -rf "$config_dir"
   mkdir "$config_dir"
@@ -682,7 +716,7 @@ generate_piece
 first_round=$last_added
 #echo $last_added
 #generate_piece
-print_board
+#print_board
 #update_his_auto &
 #update_pid=$!
 
